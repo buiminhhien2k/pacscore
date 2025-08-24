@@ -13,7 +13,8 @@ from torch.utils.data import DataLoader
 
 _MODELS = {
     "ViT-B/32": "checkpoints/clip_ViT-B-32.pth",
-    "open_clip_ViT-L/14": "checkpoints/openClip_ViT-L-14.pth"
+    # "open_clip_ViT-L/14": "checkpoints/openClip_ViT-L-14.pth"
+    "open_clip_ViT-L/14": "checkpoints/ViT-L-14.pt"
 }
 
 def compute_correlation_scores(dataloader, model, preprocess, args, device):
@@ -94,16 +95,19 @@ if __name__ == '__main__':
 
     if args.clip_model.startswith('open_clip'):
         print("Using Open CLIP Model: " + args.clip_model)
-        model, _, preprocess = open_clip.create_model_and_transforms('ViT-L-14', pretrained='laion2b_s32b_b82k')
+        model, _, preprocess = open_clip.create_model_and_transforms(
+            'ViT-L-14', pretrained='laion2b_s32b_b82k', cache_dir="/checkpoints/")
     else:
         print("Using CLIP Model: " + args.clip_model)
         model, preprocess = clip.load(args.clip_model, device=device) 
-        
+
+    print(type(model))
     model = model.to(device)
     model = model.float()
-    
-    checkpoint = torch.load(_MODELS[args.clip_model])
-    model.load_state_dict(checkpoint['state_dict'])
+
+    print(_MODELS[args.clip_model])
+    checkpoint = torch.load(_MODELS[args.clip_model], weights_only=False)
+    model.load_state_dict(checkpoint)
     model.eval()
 
     compute_scores(model, preprocess, args, device)

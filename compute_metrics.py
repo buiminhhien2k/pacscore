@@ -100,7 +100,7 @@ if __name__ == '__main__':
     model = model.float()
 
     checkpoint = torch.load(_MODELS[args.clip_model])
-    model.load_state_dict(checkpoint['state_dict'])
+    model.load_state_dict(checkpoint)
     model.eval()
 
     all_scores = compute_scores(
